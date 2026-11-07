@@ -121,6 +121,7 @@ export function resolveIntent(message: string, history: Turn[]): Intent {
   ) {
     return "identity";
   }
+  if (personalHeavy(n)) return "heavy";
   if (
     CREATIVE_WORD.test(n) ||
     /\b(i'm working on|i am working on|help me write|draft)\b/.test(n) ||
@@ -142,6 +143,12 @@ export function resolveIntent(message: string, history: Turn[]): Intent {
     return "personal";
   }
   return "open";
+}
+
+function personalHeavy(n: string): boolean {
+  return /\b(death of my|(?:my|our) (?:[a-z]+ ){0,4}died|grief|funeral|divorce|depressed|depression|anxious|anxiety|lonely|loneliness|miscarriage)\b/.test(
+    n,
+  );
 }
 
 export function boundaryReply(intent: Intent, message: string, history: Turn[]): string | null {

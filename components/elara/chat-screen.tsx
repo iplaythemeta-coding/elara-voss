@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { OPENING, STARTERS } from "@/lib/elara/copy";
-import { visibleFacts } from "@/lib/elara/memory";
+import { factsFromResponse, visibleFacts } from "@/lib/elara/memory";
 import { PORTRAITS, portraitById } from "@/lib/elara/portraits";
 import type { Fact, PortraitId, ProviderId } from "@/lib/elara/types";
 
@@ -260,7 +260,8 @@ export function ChatScreen() {
           ? "You're talking rather quickly. Give me a second, then say it again."
           : "The line went quiet. Say that once more.");
       if (data.image) setStage(data.image);
-      if (Array.isArray(data.facts)) setFacts(data.facts);
+      const nextFacts = factsFromResponse(response.ok, data.facts);
+      if (nextFacts) setFacts(nextFacts);
       setMessages((current) => [
         ...current,
         {
@@ -526,7 +527,7 @@ export function ChatScreen() {
                 <Badge>{provider === "rehearsal" ? "Rehearsal" : serverReady || apiKey ? "Studio" : "Needs a key"}</Badge>
               </div>
               <p className="mb-3 text-muted-foreground">
-                Rehearsal is Elara without a model provider. It stays in this app. Studio, if you connect one, sends this conversation to Grok, Claude, or GPT-4o.
+                Rehearsal is Elara without a model provider. Your line is sent to this app so she can answer, and it is not passed on to Grok, Claude, or GPT-4o. Studio, if you connect one, sends this conversation to one of those.
               </p>
               <div className="flex flex-wrap gap-2">
                 {PROVIDERS.map((item) => (

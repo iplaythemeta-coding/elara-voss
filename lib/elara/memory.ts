@@ -86,21 +86,54 @@ export function isYoungFact(facts: Fact[]): boolean {
   return factValue(facts, "_audience") === "young";
 }
 
+const AGE_WORDS: Record<string, number> = {
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+  ten: 10,
+  eleven: 11,
+  twelve: 12,
+  thirteen: 13,
+  fourteen: 14,
+  fifteen: 15,
+  sixteen: 16,
+  seventeen: 17,
+};
+
+const AGE_WORD = Object.keys(AGE_WORDS).join("|");
+
 export function disclosesYoung(message: string): boolean {
   const n = norm(message);
   if (/\b(i'm|i am|im)\s+(a\s+)?(minor|kid|child|underage|teenager|teen)\b/.test(n)) {
     return true;
   }
   const aged = n.match(
-    /\b(?:i'm|i am|im)\s+(\d{1,2})\s*(?:years?\s*old|yrs?\s*old)\b/,
+    new RegExp(
+      `\\b(?:i'm|i am|im)\\s+(\\d{1,2}|${AGE_WORD})\\s*(?:years?\\s*old|yrs?\\s*old)\\b`,
+    ),
   );
-  if (aged) return Number(aged[1]) < 18;
-  const bare = n.match(/\b(?:i'm|i am|im)\s+(\d{1,2})\b(?=\s*(?:and|but|,|\.|!|$))/);
+  if (aged) return ageNumber(aged[1]) < 18;
+  const bare = n.match(
+    new RegExp(`\\b(?:i'm|i am|im)\\s+(\\d{1,2}|${AGE_WORD})\\b(?=\\s*(?:and|but|,|\\.|!|$))`),
+  );
   if (bare) {
-    const age = Number(bare[1]);
+    const age = ageNumber(bare[1]);
     return age >= 5 && age < 18;
   }
   return false;
+}
+
+function ageNumber(value: string): number {
+  if (/^\d+$/.test(value)) return Number(value);
+  return AGE_WORDS[value] ?? 99;
+}
+
+/** Keep stored facts when a chat response failed or did not include a fact list. */
+export function factsFromResponse(ok: boolean, facts: unknown): Fact[] | null {
+  if (!ok || !Array.isArray(facts)) return null;
+  return sanitizeFacts(facts);
 }
 
 export function sanitizeFacts(input: unknown): Fact[] {

@@ -1,6 +1,7 @@
 import { getIdentity } from "../../../cursor/identity";
 import { chatLimiter } from "@/lib/elara/limit";
 import { sanitizeFacts } from "@/lib/elara/memory";
+import type { Fact } from "@/lib/elara/types";
 import { respond } from "@/lib/elara/respond";
 
 const headers = { "cache-control": "no-store" };
@@ -11,9 +12,9 @@ function clientKey(request: Request): string {
   return request.headers.get("x-real-ip")?.slice(0, 80) || "local";
 }
 
-function quiet(reply: string, status: number) {
+function quiet(reply: string, status: number, facts: Fact[] = []) {
   return Response.json(
-    { reply, facts: [], provider: "rehearsal", mode: "rehearsal" },
+    { reply, facts, provider: "rehearsal", mode: "rehearsal" },
     { status, headers },
   );
 }
@@ -74,6 +75,6 @@ export async function POST(request: Request) {
     });
     return Response.json(result, { headers });
   } catch {
-    return quiet("The line went quiet. Say that once more.", 500);
+    return quiet("The line went quiet. Say that once more.", 500, sanitizeFacts(body.facts));
   }
 }

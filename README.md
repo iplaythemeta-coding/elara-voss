@@ -23,7 +23,7 @@ Enter sends. Shift+Enter breaks the line.
 
 ## Rehearsal and studio
 
-Rehearsal is the default. Nothing you say leaves the app.
+Rehearsal is the default. The browser sends each line to this app's server so she can answer. Rehearsal does not forward it to an outside model, and the server does not store the transcript. What she remembers stays in this browser.
 
 Studio sends the conversation to the provider you pick. You can paste a key into the dossier (kept in the tab, not stored on the server) or set one of these for a signed-in deployment:
 
